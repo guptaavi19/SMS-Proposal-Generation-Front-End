@@ -21,6 +21,7 @@ import {
 import { Button, buttonVariants } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 
 type ProjectWithCustomer = Project & {
   customer: Customer;
@@ -82,9 +83,22 @@ const Page = () => {
         <Card className="mx-auto">
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle>Select a Project</CardTitle>
-            <Link to="/" className={buttonVariants()}>
-              New Project
-            </Link>
+            <div>
+              <Link to="/" className={buttonVariants()}>
+                New Project
+              </Link>
+              <Button
+                variant="destructive"
+                className="ml-2"
+                onClick={async () => {
+                  await http.post("/auth/logout");
+                  Cookies.remove("access_token");
+                  location.href = "/login";
+                }}
+              >
+                Log out
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div>
