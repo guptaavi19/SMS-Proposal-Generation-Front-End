@@ -11,9 +11,17 @@ import nprogress from "nprogress";
 import "./tailwind.css";
 import "./style.css";
 import "nprogress/nprogress.css";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from "@tanstack/react-query";
 import { Toaster } from "./components/ui/sonner";
 import { useEffect } from "react";
+import { http } from "./lib/utils";
+import axios from "axios";
+import { AuthProvider } from "./providers/auth-provider";
+import { Button } from "./components/ui/button";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -57,7 +65,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <QueryClientProvider client={queryClient}>
-          {children}
+          <AuthProvider>{children}</AuthProvider>
         </QueryClientProvider>
         <Toaster richColors theme="light" position="top-center" />
         <ScrollRestoration />

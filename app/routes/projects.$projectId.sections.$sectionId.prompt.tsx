@@ -35,10 +35,6 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
   let cookies = parse(request.headers.get("cookie") || "");
 
-  if (!cookies || !cookies.role) {
-    throw redirect("/login");
-  }
-
   try {
     const [allSectionsRes, activeSectionRes, promptRes] = await Promise.all([
       await http.get<GetSectionsResponse>(`/projects/${projectId}/sections`),
