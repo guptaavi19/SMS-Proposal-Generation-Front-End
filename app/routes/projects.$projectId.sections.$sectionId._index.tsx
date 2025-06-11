@@ -115,7 +115,7 @@ const Page = () => {
         });
       }
 
-      const res = await http.patch<UpdateSectionResponse>(
+      const res = await http.post<UpdateSectionResponse>(
         `/projects/${projectId}/sections/${section.id}`,
         formData
       );
