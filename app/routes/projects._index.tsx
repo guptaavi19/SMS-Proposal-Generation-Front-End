@@ -118,6 +118,7 @@ const Page = () => {
                   <TableHead>Project Location</TableHead>
                   <TableHead>Customer Name</TableHead>
                   <TableHead>Report Type</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -141,6 +142,17 @@ const Page = () => {
                         <TableCell>{project.location}</TableCell>
                         <TableCell>{project.customer.name}</TableCell>
                         <TableCell>{project.reportType.displayName}</TableCell>
+                        <TableCell>
+                          {(() => {
+                            for (let i = 0; i < project.sections.length; ++i) {
+                              if (project.sections[i].response === "") {
+                                return "Pending";
+                              }
+                            }
+
+                            return "Completed";
+                          })()}
+                        </TableCell>
                         <TableCell>
                           <Button
                             size="sm"
