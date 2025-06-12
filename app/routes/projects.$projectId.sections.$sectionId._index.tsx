@@ -231,9 +231,13 @@ const Page = () => {
 
                   <CardTitle className="text-xl ml-2">Sections</CardTitle>
                 </div>
-                <div className="mt-4">
+                <div className="inline-flex flex-col mt-4">
+                  <Link to="/projects" className={buttonVariants()}>
+                    View All Projects
+                  </Link>
                   <Button
                     variant="outline"
+                    className="mt-2"
                     onClick={async () => {
                       try {
                         const res = await fetch(

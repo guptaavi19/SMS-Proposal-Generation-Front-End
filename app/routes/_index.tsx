@@ -1,10 +1,10 @@
 import type { MetaFunction } from "@remix-run/node";
-import { useLoaderData, useNavigate } from "@remix-run/react";
+import { Link, useLoaderData, useNavigate } from "@remix-run/react";
 import { Loader2, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button } from "~/components/ui/button";
+import { Button, buttonVariants } from "~/components/ui/button";
 import {
   Card,
   CardContent,
@@ -43,6 +43,7 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import axios from "axios";
+import Cookies from "js-cookie";
 
 export const meta: MetaFunction = () => {
   return [
@@ -239,7 +240,23 @@ const Page = () => {
 
             <Card className="mt-6">
               <CardContent className="p-6">
-                <div className="grid grid-cols-12 gap-4">
+                <div className="flex justify-end">
+                  <Link to="/projects" className={buttonVariants()}>
+                    View All Projects
+                  </Link>
+                  <Button
+                    variant="destructive"
+                    className="ml-2"
+                    onClick={async () => {
+                      await http.post("/auth/logout");
+                      Cookies.remove("access_token");
+                      location.href = "/login";
+                    }}
+                  >
+                    Log out
+                  </Button>
+                </div>
+                <div className="grid grid-cols-12 gap-4 mt-6">
                   <div className="col-span-6">
                     <FormField
                       control={form.control}
