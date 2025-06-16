@@ -37,6 +37,7 @@ export type ProjectContent = {
 
 export type Section = {
   id: string;
+  userId: string;
   projectId: string;
   apiName: string;
   displayName: string;

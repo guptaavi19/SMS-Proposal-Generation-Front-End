@@ -20,7 +20,7 @@ import { Toaster } from "./components/ui/sonner";
 import { useEffect } from "react";
 import { http } from "./lib/utils";
 import axios from "axios";
-import { AuthProvider } from "./providers/auth-provider";
+import { AuthContextProvider } from "./providers/auth-context-provider";
 import { Button } from "./components/ui/button";
 
 export const links: LinksFunction = () => [
@@ -65,7 +65,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <QueryClientProvider client={queryClient}>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthContextProvider>{children}</AuthContextProvider>
         </QueryClientProvider>
         <Toaster richColors theme="light" position="top-center" />
         <ScrollRestoration />

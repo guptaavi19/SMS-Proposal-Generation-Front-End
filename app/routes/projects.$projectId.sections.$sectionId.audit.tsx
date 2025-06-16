@@ -45,6 +45,7 @@ type Params = {
 
 type AuditLog = {
   id: string;
+  userId: string;
   newPrompt: string;
   newResponse: string;
   oldPrompt: string;

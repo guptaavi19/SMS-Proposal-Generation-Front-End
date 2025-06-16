@@ -21,6 +21,7 @@ import {
 } from "~/components/dropdown-menu";
 import { parse } from "cookie";
 import { isAxiosError } from "axios";
+import { useAuth } from "~/hooks/use-auth";
 
 type Params = {
   projectId: string;
@@ -70,6 +71,7 @@ type UpdateSectionResponse = {
 };
 
 const Page = () => {
+  const auth = useAuth();
   const { projectId, sectionId, sections, activeSection, role } =
     useLoaderData<typeof loader>();
   const [sectionContent, setSectionContent] = useState<string>("");
@@ -101,6 +103,7 @@ const Page = () => {
     }) => {
       const formData = new FormData();
       formData.append("user_prompt", userPrompt);
+      formData.append("email", auth.email);
 
       if (isAiRevision) {
         formData.append("is_ai_revision", "yes");
