@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
 import { http } from "~/lib/utils";
-import { GetSectionsResponse, Role, Section } from "~/types";
+import { GetSectionsResponse, Role, Section, User } from "~/types";
 import { marked } from "marked";
 import JoditEditor from "~/components/jodit.client";
 import { ClientOnly } from "remix-utils/client-only";
@@ -65,6 +65,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   let sections: Section[] = [];
   let activeSection: Section | null = null;
   let auditLogs: AuditLog[] = [];
+  let users: User[] = [];
 
   let cookies = parse(request.headers.get("cookie") || "");
 
@@ -74,7 +75,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
       await http.get<GetSectionResponse>(
         `/projects/${projectId}/sections/${sectionId}`
       ),
-      await http.get<{ history: AuditLog[] }>(
+      await http.get<{ history: AuditLog[]; users: User[] }>(
         `/projects/${projectId}/sections/${sectionId}/audit`
       ),
     ]);
@@ -82,6 +83,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     sections = allSectionsRes.data.data.sections;
     activeSection = activeSectionRes.data.data.section;
     auditLogs = auditRes.data.history;
+    users = auditRes.data.users;
   } catch (e) {
     console.log(e);
   }
@@ -92,6 +94,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     sections,
     activeSection,
     auditLogs,
+    users,
     role: cookies.role as Role,
   };
 };
@@ -115,7 +118,7 @@ const renderLargeContent = (content: string) => {
 };
 
 const Page = () => {
-  const { projectId, sectionId, sections, activeSection, auditLogs } =
+  const { projectId, sectionId, sections, activeSection, auditLogs, users } =
     useLoaderData<typeof loader>();
 
   if (!activeSection) {
@@ -181,6 +184,7 @@ const Page = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Version</TableHead>
+                    <TableHead>Revised By</TableHead>
                     <TableHead>Previous Prompt</TableHead>
                     <TableHead>Previous Content</TableHead>
                     <TableHead>Revised Prompt</TableHead>
@@ -195,7 +199,19 @@ const Page = () => {
                         <TableCell className="font-medium">
                           {renderLargeContent(row.version)}
                         </TableCell>
-                        <TableCell className="font-medium">
+                        <TableCell>
+                          {(() => {
+                            const user = users.find(
+                              (user) => user.id === row.userId
+                            );
+                            if (!user) {
+                              return "N/A";
+                            }
+
+                            return renderLargeContent(user.email);
+                          })()}
+                        </TableCell>
+                        <TableCell>
                           {renderLargeContent(row.oldPrompt)}
                         </TableCell>
                         <TableCell>

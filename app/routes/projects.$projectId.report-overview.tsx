@@ -4,13 +4,14 @@ import { Loader2 } from "lucide-react";
 import { ClientOnly } from "remix-utils/client-only";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { http } from "~/lib/utils";
-import { GetSectionsResponse, Section } from "~/types";
+import { GetSectionsResponse, Section, User } from "~/types";
 import JoditEditor from "~/components/jodit.client";
 import { useEffect, useState } from "react";
 import { marked } from "marked";
 import { Button } from "~/components/ui/button";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useAuth } from "~/hooks/use-auth";
 
 type Params = {
   projectId: string;
@@ -40,6 +41,8 @@ const Page = () => {
   const { projectId, sections } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const [content, setContent] = useState<string>("");
+  const auth = useAuth();
+  const [role, setRole] = useState<User["role"] | null>(null);
   const powerAutomateMutation = useMutation({
     mutationFn: async ({ htmlContent }: { htmlContent: string }) => {
       const formData = new FormData();
@@ -70,6 +73,17 @@ const Page = () => {
       );
     }
   }, [sections]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await http.get<{ role: User["role"] }>(
+          `/users/${auth.email}/role`
+        );
+        setRole(res.data.role);
+      } catch (e) {}
+    })();
+  }, [auth]);
 
   return (
     <div className="grid grid-cols-12 min-h-screen p-4 gap-4 bg-slate-200">
@@ -107,20 +121,21 @@ const Page = () => {
 
             <div className="mt-8 flex flex-col items-center space-y-4">
               <div>
-                <Button>Submit for Approval</Button>
-              </div>
-              <div>
-                <Button
-                  variant="outline"
-                  disabled={powerAutomateMutation.isPending}
-                  onClick={() => {
-                    powerAutomateMutation.mutate({ htmlContent: content });
-                  }}
-                >
-                  {powerAutomateMutation.isPending
-                    ? "Generating"
-                    : "Generate Word Document"}
-                </Button>
+                {role === "originator" ? (
+                  <Button>Submit for Approval</Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    disabled={powerAutomateMutation.isPending}
+                    onClick={() => {
+                      powerAutomateMutation.mutate({ htmlContent: content });
+                    }}
+                  >
+                    {powerAutomateMutation.isPending
+                      ? "Generating"
+                      : "Generate Word Document"}
+                  </Button>
+                )}
               </div>
             </div>
           </CardContent>

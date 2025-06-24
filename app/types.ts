@@ -57,3 +57,13 @@ export type GetSectionsResponse = {
     sections: Section[];
   };
 };
+
+export type User = {
+  accessToken: string | null;
+  createdAt: string;
+  email: string;
+  id: string;
+  name: string | null;
+  role: "originator" | "reviewer" | "approver";
+  updatedAt: string;
+};

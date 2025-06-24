@@ -44,6 +44,7 @@ import {
 } from "~/components/ui/dialog";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { useAuth } from "~/hooks/use-auth";
 
 export const meta: MetaFunction = () => {
   return [
@@ -107,6 +108,7 @@ export const loader = async () => {
 };
 
 const Page = () => {
+  const auth = useAuth();
   const { reportTypes, customers, sections } = useLoaderData<typeof loader>();
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
@@ -128,6 +130,7 @@ const Page = () => {
   const saveProject = useMutation({
     mutationFn: async (payload: z.infer<typeof formSchema>) => {
       const formData = new FormData();
+      formData.append("email", auth.email);
       formData.append("customer_id", payload.customerId);
       formData.append("report_type", payload.reportType);
       formData.append("project_name", payload.projectName);
