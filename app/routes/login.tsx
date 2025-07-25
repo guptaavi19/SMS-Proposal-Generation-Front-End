@@ -1,11 +1,18 @@
+// app/routes/login.tsx
 import { useEffect } from "react";
-import { http } from "~/lib/utils";
 
 const Page = () => {
   useEffect(() => {
     (async () => {
-      const res = await http.get("/auth/login");
-      location.href = res.data.authUrl;
+      try {
+        const res = await fetch("http://localhost:8000/auth/login", {
+          credentials: "include",
+        });
+        const data = await res.json();
+        window.location.href = data.auth_url; // Redirect to Azure login
+      } catch (err) {
+        console.error("Login failed", err);
+      }
     })();
   }, []);
 

@@ -103,7 +103,8 @@ const Page = () => {
     }) => {
       const formData = new FormData();
       formData.append("user_prompt", userPrompt);
-      formData.append("email", auth.email);
+      formData.append("email", auth.user?.email || "");
+
 
       if (isAiRevision) {
         formData.append("is_ai_revision", "yes");
@@ -238,37 +239,38 @@ const Page = () => {
                   <Link to="/projects" className={buttonVariants()}>
                     View All Projects
                   </Link>
-                  <Button
-                    variant="outline"
-                    className="mt-2"
-                    onClick={async () => {
-                      try {
-                        const res = await fetch(
-                          `${
-                            import.meta.env.VITE_API_URL
-                          }/projects/${projectId}/are-all-sections-generated`
-                        );
-                        const data = await res.json();
-
-                        if (data.are_all_sections_generated) {
-                          navigate(`/projects/${projectId}/report-overview`, {
-                            state: { mergedResponse: data.merged_response },
-                          });
-                        } else {
-                          toast.error(
-                            "Not all sections have been generated yet!"
-                          );
-                        }
-                      } catch (error) {
-                        console.error("Error checking sections:", error);
-                        toast.error(
-                          "Failed to fetch section status. Try again later."
-                        );
+                 <Button
+                variant="outline"
+                className="mt-2"
+                onClick={async () => {
+                  try {
+                    // ✅ This ensures the request goes to the backend directly
+                    const res = await fetch(
+                      `${import.meta.env.VITE_API_URL}/projects/${projectId}/are-all-sections-generated`,
+                      {
+                        method: "GET",
+                        mode: "cors", // <== Important if backend is running on a different port
                       }
-                    }}
-                  >
-                    View Report Overview
-                  </Button>
+                    );
+
+                    const data = await res.json();
+
+                    if (data.are_all_sections_generated) {
+                      navigate(`/projects/${projectId}/report-overview`, {
+                        state: { mergedResponse: data.merged_response },
+                      });
+                    } else {
+                      toast.error("Not all sections have been generated yet!");
+                    }
+                  } catch (error) {
+                    console.error("Error checking sections:", error);
+                    toast.error("Failed to fetch section status. Try again later.");
+                  }
+                }}
+              >
+                View Report Overview
+              </Button>
+
                 </div>
               </div>
             </CardHeader>
@@ -281,10 +283,16 @@ const Page = () => {
 
                   return (
                     <div key={i}>
-                      <Link
+                     <Link
                         to={href}
                         onClick={(e) => {
                           e.preventDefault();
+
+                          // ✅ Check if email is available
+                          if (!auth.user?.email)  {
+                            toast.error("User email not loaded yet. Please wait or refresh.");
+                            return;
+                          }
 
                           if (!section.response) {
                             updateSection.mutate({
@@ -299,6 +307,7 @@ const Page = () => {
 
                           navigate(href);
                         }}
+
                         className={buttonVariants({
                           variant:
                             sectionId === section.id ? "default" : "ghost",

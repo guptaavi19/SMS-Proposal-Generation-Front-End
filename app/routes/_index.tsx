@@ -108,7 +108,7 @@ export const loader = async () => {
 };
 
 const Page = () => {
-  const auth = useAuth();
+  const { user, authenticated, loading } = useAuth();
   const { reportTypes, customers, sections } = useLoaderData<typeof loader>();
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
@@ -130,7 +130,7 @@ const Page = () => {
   const saveProject = useMutation({
     mutationFn: async (payload: z.infer<typeof formSchema>) => {
       const formData = new FormData();
-      formData.append("email", auth.email);
+      formData.append("email", user!.email);
       formData.append("customer_id", payload.customerId);
       formData.append("report_type", payload.reportType);
       formData.append("project_name", payload.projectName);
@@ -200,13 +200,17 @@ const Page = () => {
     },
   });
 
-  const onSubmit = useCallback(
-    (payload: z.infer<typeof formSchema>) => {
-      saveProject.mutate(payload);
-    },
-    [saveProject.mutate]
-  );
+const onSubmit = useCallback(
+  (payload: z.infer<typeof formSchema>) => {
+    if (!user || !user.email) {
+      toast.error("User email not loaded. Please try again.");
+      return;
+    }
 
+    saveProject.mutate(payload);
+  },
+  [saveProject.mutate, user]
+);
   useEffect(() => {
     if (saveProject.isPending) {
       document.body.style.overflow = "hidden";
@@ -235,6 +239,7 @@ const Page = () => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
+            encType="multipart/form-data" // ✅ THIS LINE IS REQUIRED
             className="container mx-auto min-h-screen flex flex-col justify-center"
           >
             <div className="flex justify-end">

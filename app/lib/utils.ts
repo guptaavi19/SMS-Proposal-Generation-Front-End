@@ -7,14 +7,20 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// ✅ Base URL setup for both SSR (Node) and browser (Vite)
+const baseURL =
+  typeof window === "undefined"
+    ? process.env.API_URL || "http://localhost:8000" // fallback for SSR
+    : import.meta.env.VITE_API_URL;
+
 export const http = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true,
+  baseURL: "http://localhost:8000",
+  withCredentials: true, // ✅ include cookies like access_token
 });
 
+// ✅ Intercept and convert all response keys to camelCase
 http.interceptors.response.use(
   (response: AxiosResponse) => {
-    // Convert response data keys to camelCase
     response.data = convertKeysToCamelCase(response.data);
     return response;
   },
@@ -23,7 +29,7 @@ http.interceptors.response.use(
   }
 );
 
-// Function to recursively convert keys to camelCase
+// ✅ Utility to convert keys to camelCase recursively
 export const convertKeysToCamelCase = (obj: any): any => {
   if (_.isPlainObject(obj)) {
     return Object.keys(obj).reduce(

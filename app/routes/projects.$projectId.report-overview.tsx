@@ -51,7 +51,7 @@ const Page = () => {
       await http.post(`/projects/${projectId}/send-to-automate`, formData);
     },
     onSuccess: () => {
-      toast.success("Power automate flow triggered.");
+      toast.success("Generating Word Document.");
     },
     onError: (e) => {
       toast.error(e.message);
@@ -63,13 +63,21 @@ const Page = () => {
       setContent(
         sections
           .map((section) => {
-            let buf = marked(section.response);
-            return (
-              `<h1 style="font-size: 32px; font-weight: bold; text-align: center; margin-bottom: 12px;">${section.displayName}</h1>` +
-              buf
-            );
-          })
-          .join("<br><hr><br>")
+            return `
+          <section style="max-width: 900px; margin: 0 auto 48px; padding: 24px;">
+            <h2 style="
+              font-size: 28px;
+              font-weight: bold;
+              text-align: center;
+              margin-bottom: 20px;
+            ">
+              ${section.displayName}
+            </h2>
+            <div style="line-height: 1.6;">${section.response}</div>
+          </section>
+        `;
+      })
+          .join("<p><br><table>")
       );
     }
   }, [sections]);
@@ -78,7 +86,7 @@ const Page = () => {
     (async () => {
       try {
         const res = await http.get<{ role: User["role"] }>(
-          `/users/${auth.email}/role`
+          `/users/${!auth.user?.email}/role`
         );
         setRole(res.data.role);
       } catch (e) {}
