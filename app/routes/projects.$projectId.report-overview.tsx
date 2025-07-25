@@ -63,20 +63,12 @@ const Page = () => {
       setContent(
         sections
           .map((section) => {
-            return `
-          <section style="max-width: 900px; margin: 0 auto 48px; padding: 24px;">
-            <h2 style="
-              font-size: 28px;
-              font-weight: bold;
-              text-align: center;
-              margin-bottom: 20px;
-            ">
-              ${section.displayName}
-            </h2>
-            <div style="line-height: 1.6;">${section.response}</div>
-          </section>
-        `;
-      })
+          let buf = section.response;
+         return (
+              `<h1 style="font-size: 32px; font-weight: bold; text-align: center; margin-bottom: 12px;">${section.displayName}</h1>` +
+              buf
+            );
+          })
           .join("<p><br><table>")
       );
     }
